@@ -125,52 +125,43 @@ export default function App() {
           <Route
             path="/mybooks"
             element={
+              <>
               <SignedIn>
                 <MyBooks books={books} onEditBook={handleEditBook} onDeleteBook={handleDeleteBook} />
               </SignedIn>
+              <SignedOut>
+                <Navigate to="/" replace />
+              </SignedOut>
+              </>
             }
           />
           <Route
             path="/addbook"
             element={
+              <>
               <SignedIn>
                 <AddBookForm onAddBook={handleAddBook} />
               </SignedIn>
+              <SignedOut>
+                <Navigate to="/" replace />
+              </SignedOut>
+              </>
             }
           />
           <Route
             path="/bookdetail/:id"
             element={
+              <>
               <SignedIn>
                 <BookDetail books={books} onEdit={handleEditBook} onDelete={handleDeleteBook} />
               </SignedIn>
-            }
-          />
-          {/* Redirect unauthenticated users to home page for protected routes */}
-          <Route
-            path="/mybooks"
-            element={
               <SignedOut>
                 <Navigate to="/" replace />
               </SignedOut>
+              </>
             }
-          />
-          <Route
-            path="/addbook"
-            element={
-              <SignedOut>
-                <Navigate to="/" replace />
-              </SignedOut>
-            }
-          />
-          <Route
-            path="/bookdetail/:id"
-            element={
-              <SignedOut>
-                <Navigate to="/" replace />
-              </SignedOut>
-            }
-          />
+          />          
+          
           <Route
             path="/sign-in/*"
             element={<Navigate to="/" />}
