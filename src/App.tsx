@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useEffect, useState } from 'react';
 import { useAuth, SignedIn } from '@clerk/clerk-react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
@@ -17,7 +16,6 @@ export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Sync Clerk auth with Firebase
   useEffect(() => {
     const syncFirebaseAuth = async () => {
       if (!isLoaded) return;
@@ -39,7 +37,6 @@ export default function App() {
     syncFirebaseAuth();
   }, [isLoaded, isSignedIn, userId, getToken]);
 
-  // Subscribe to Firestore books
   useEffect(() => {
     if (!userId) {
       setBooks([]);
@@ -160,7 +157,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
-      <footer className="py-4 sm:py-6 mt-8 sm:mt-10 bg-white border text-center px-4 sm:px-6 lg:px-8">
+      <footer className="py-4 sm:py-6 bg-white border text-center px-4 sm:px-6 lg:px-8">
         <p className="text-gray-500 text-sm sm:text-base">© 2025 BookTracker. All rights reserved.</p>
       </footer>
     </div>

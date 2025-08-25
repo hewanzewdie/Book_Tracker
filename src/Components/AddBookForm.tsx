@@ -1,4 +1,3 @@
-// src/Components/AddBookForm.tsx
 import { useState } from 'react';
 import { BookOpen, Star, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -56,7 +55,7 @@ export default function AddBookForm({ onAddBook }: AddBookFormProps) {
     }
 
     const newBook: Book = {
-      id: '', // Firestore will generate the ID
+      id: '',
       title: formData.title,
       author: formData.author.trim() || 'Unknown Author',
       category: formData.category,
@@ -82,7 +81,8 @@ export default function AddBookForm({ onAddBook }: AddBookFormProps) {
     setTimeout(() => {
       setShowSuccessMessage(false);
       setSuccessBookTitle('');
-    }, 3000);
+    }, 5000);
+    navigate(-1)
   };
 
   const handleChange = (

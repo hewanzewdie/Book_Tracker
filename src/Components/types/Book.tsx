@@ -1,4 +1,3 @@
-// src/Components/types/Book.ts
 export interface Book {
   id: string;
   title: string;

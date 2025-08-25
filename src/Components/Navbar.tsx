@@ -1,4 +1,3 @@
-// src/Components/Navbar.tsx
 import { BookOpenIcon, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
@@ -14,21 +13,20 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="py-3 px-4 sm:px-6 lg:px-8 flex w-full justify-between items-center shadow bg-white">
+      <nav className="py-3 px-4 sm:px-6 lg:px-8 flex w-full justify-between items-center shadow bg-white sticky top-0 z-50">
         <Link to="/" className="flex space-x-2 sm:space-x-5 items-center">
           <BookOpenIcon className="text-blue-700" size={24} />
           <p className="font-bold text-lg sm:text-xl lg:text-2xl text-blue-700">BookTracker</p>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center space-x-4 lg:space-x-5">
           <SignedOut>
             <div className="flex items-center space-x-4 lg:space-x-5">
               <SignInButton>
-                <Button>Sign in</Button>
+                <Button className='hover:scale-110'>Sign in</Button>
               </SignInButton>
               <SignUpButton>
-                <Button variant="secondary">Sign up</Button>
+                <Button variant="secondary" className='hover:scale-110'>Sign up</Button>
               </SignUpButton>
             </div>
           </SignedOut>
@@ -38,13 +36,12 @@ export default function Navbar() {
               <Link to="/addbook" className="hover:underline transition-colors">Add Book</Link>
               <UserButton />
               <SignOutButton signOutOptions={{ redirectUrl: '/' }}>
-                <Button variant="destructive">Logout</Button>
+                <Button variant="destructive" className='hover:scale-110'>Logout</Button>
               </SignOutButton>
             </div>
           </SignedIn>
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           onClick={toggleMobileMenu}
           className="sm:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -53,7 +50,6 @@ export default function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="sm:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
           <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl">

@@ -1,5 +1,4 @@
-// src/Components/MyBooks.tsx
-import { BookOpenIcon, StarIcon, X } from 'lucide-react';
+import { BookOpenIcon} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import BookCard from './BookCard';
@@ -16,8 +15,8 @@ interface MyBooksProps {
 export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProps) {
   const [statusFilter, setStatusFilter] = useState<string>('allbooks');
   const [categoryFilter, setCategoryFilter] = useState<string>('allcategories');
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
-  const [editFormData, setEditFormData] = useState<Book | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredBooks = useMemo(() => {
     return books.filter((book) => {
@@ -27,52 +26,24 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
     });
   }, [books, statusFilter, categoryFilter]);
 
-  const handleEditBook = (book: Book) => {
-    setEditingBook(book);
-    setEditFormData({ ...book });
-  };
-
   const handleDeleteBook = (bookId: string) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       onDeleteBook(bookId);
     }
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editFormData && editingBook) {
-      onEditBook(editFormData);
-      setEditingBook(null);
-      setEditFormData(null);
-    }
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+  const paginatedBooks = filteredBooks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'range' || type === 'number' ? Number(value) : value;
-
-    setEditFormData((prev) => {
-      if (!prev) return prev;
-      // If progress is being set to 100, automatically change status to finished
-      if (name === 'progress' && newValue === 100) {
-        return {
-          ...prev,
-          [name]: newValue,
-          status: 'finished',
-        };
-      }
-      return {
-        ...prev,
-        [name]: newValue,
-      };
-    });
-  };
-
-  const handleEditCancel = () => {
-    setEditingBook(null);
-    setEditFormData(null);
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   const categories = [
@@ -97,18 +68,18 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
   ];
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 bg-gray-50">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">My Books</h1>
         <Link to="/addbook" className="inline-flex">
-          <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 hover:scale-110">
             <BookOpenIcon size={18} className="sm:w-5 sm:h-5" />
             Add Book
           </Button>
         </Link>
       </div>
 
-      <div className="mb-6 p-4 sm:p-6 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="mb-6 p-4 sm:p-6 bg-gray-100 rounded-lg border border-gray-200">
         <h3 className="text-lg font-semibold mb-3 sm:mb-4 text-gray-800">Filter Books</h3>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4">
           <div className="flex flex-col w-full sm:w-auto">
@@ -116,7 +87,7 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
               Status
             </label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-56 bg-white border border-gray-300">
+              <SelectTrigger className="w-full sm:w-56 bg-white">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -134,7 +105,7 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
               Category
             </label>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-56 bg-white border border-gray-300">
+              <SelectTrigger className="w-full sm:w-56 bg-white">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -151,9 +122,10 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
             onClick={() => {
               setStatusFilter('allbooks');
               setCategoryFilter('allcategories');
+              setCurrentPage(1); // Reset to first page when clearing filters
             }}
             variant="secondary"
-            className="w-full sm:w-auto self-end bg-gray-600 hover:bg-gray-700 text-white"
+            className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 hover:scale-110 text-white self-end"
           >
             Clear Filters
           </Button>
@@ -190,16 +162,16 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
       </div>
 
       <div className="mb-4 text-sm text-gray-600">
-        Showing {filteredBooks.length} of {books.length} books
+        Showing {paginatedBooks.length} of {filteredBooks.length} books (Page {currentPage} of {totalPages})
         {(statusFilter !== 'allbooks' || categoryFilter !== 'allcategories') && (
           <span className="ml-2 text-gray-500">(filtered)</span>
         )}
       </div>
 
       {filteredBooks.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {filteredBooks.map((book) => (
-            <BookCard key={book.id} book={book} onEdit={handleEditBook} onDelete={handleDeleteBook} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {paginatedBooks.map((book) => (
+            <BookCard key={book.id} book={book} onEdit={onEditBook} onDelete={handleDeleteBook} />
           ))}
         </div>
       ) : (
@@ -212,7 +184,7 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
           {books.length === 0 && (
             <div className="mt-6">
               <Link to="/addbook" className="inline-flex">
-                <Button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                <Button className="inline-flex items-center gap-2">
                   <BookOpenIcon className="-ml-1 mr-2 h-5 w-5" />
                   Add Book
                 </Button>
@@ -222,154 +194,25 @@ export default function MyBooks({ books, onEditBook, onDeleteBook }: MyBooksProp
         </div>
       )}
 
-      {editingBook && editFormData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Edit Book</h2>
-              <button onClick={handleEditCancel} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
-                <X size={24} />
-              </button>
-            </div>
-            <form onSubmit={handleEditSubmit} className="p-4 sm:p-6 space-y-4">
-              <div>
-                <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Book Title <span className="text-lg text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  id="edit-title"
-                  value={editFormData.title}
-                  onChange={handleEditChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-author" className="block text-sm font-medium text-gray-700 mb-1">
-                  Author <span className="text-lg text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="author"
-                  id="edit-author"
-                  value={editFormData.author}
-                  onChange={handleEditChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Category <span className="text-lg text-red-600">*</span>
-                </label>
-                <select
-                  name="category"
-                  id="edit-category"
-                  value={editFormData.category}
-                  onChange={handleEditChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Reading Status <span className="text-lg text-red-600">*</span>
-                </label>
-                <select
-                  name="status"
-                  id="edit-status"
-                  value={editFormData.status}
-                  onChange={handleEditChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                >
-                  {readingStatuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {editFormData.status === 'currentlyreading' && (
-                <div>
-                  <label htmlFor="edit-progress" className="block text-sm font-medium text-gray-700 mb-1">
-                    Progress
-                  </label>
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="range"
-                      name="progress"
-                      id="edit-progress"
-                      min={0}
-                      max={100}
-                      value={editFormData.progress}
-                      onChange={handleEditChange}
-                      className="flex-1"
-                    />
-                    <span className="text-gray-700 font-medium w-12">{editFormData.progress}%</span>
-                  </div>
-                </div>
-              )}
-              {editFormData.status === 'finished' && (
-                <>
-                  <div>
-                    <label htmlFor="edit-rating" className="block text-sm font-medium text-gray-700 mb-1">
-                      Rating (1-5)
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setEditFormData((prev) => (prev ? { ...prev, rating: star } : prev))}
-                          className={`p-1 rounded ${editFormData.rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
-                        >
-                          <StarIcon className="w-6 h-6" fill={editFormData.rating >= star ? 'currentColor' : 'none'} />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="edit-review" className="block text-sm font-medium text-gray-700 mb-1">
-                      Review
-                    </label>
-                    <textarea
-                      name="review"
-                      id="edit-review"
-                      value={editFormData.review || ''}
-                      onChange={handleEditChange}
-                      placeholder="Share your thoughts about this book..."
-                      rows={3}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    />
-                  </div>
-                </>
-              )}
-              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={handleEditCancel}
-                  className="border border-gray-400 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-colors w-full sm:w-auto"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center items-center gap-4">
+          <Button
+            onClick={goToPreviousPage}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 hover:scale-105 rounded-full disabled:opacity-50"
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            onClick={goToNextPage}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 hover:scale-105 rounded-full disabled:opacity-50"
+          >
+            Next
+          </Button>
         </div>
       )}
     </div>
