@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth, SignedIn, SignedOut } from '@clerk/clerk-react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
 import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
 import Navbar from './Components/Navbar';
 import HomePage from './Components/HomePage';
