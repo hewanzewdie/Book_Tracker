@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useAuth, SignedIn } from '@clerk/clerk-react';
+import { useAuth, SignedIn, SignedOut } from '@clerk/clerk-react';
 import { signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth';
 import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { auth, db } from './lib/firebase';
 import Navbar from './Components/Navbar';
 import HomePage from './Components/HomePage';
@@ -144,6 +144,31 @@ export default function App() {
               <SignedIn>
                 <BookDetail books={books} onEdit={handleEditBook} onDelete={handleDeleteBook} />
               </SignedIn>
+            }
+          />
+          {/* Redirect unauthenticated users to home page for protected routes */}
+          <Route
+            path="/mybooks"
+            element={
+              <SignedOut>
+                <Navigate to="/" replace />
+              </SignedOut>
+            }
+          />
+          <Route
+            path="/addbook"
+            element={
+              <SignedOut>
+                <Navigate to="/" replace />
+              </SignedOut>
+            }
+          />
+          <Route
+            path="/bookdetail/:id"
+            element={
+              <SignedOut>
+                <Navigate to="/" replace />
+              </SignedOut>
             }
           />
           <Route
